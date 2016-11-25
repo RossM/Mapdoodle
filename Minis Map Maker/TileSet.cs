@@ -113,15 +113,16 @@ namespace Mapdoodle
 
             System.Xml.Serialization.XmlSerializer serializer = new System.Xml.Serialization.XmlSerializer(typeof(TileSourceDefinition[]));
 
-            if (!Directory.Exists(filename))
+            if (Directory.Exists(filename))
             {
                 tileSources = tileSet.LoadTilesetFromPackage(filename, serializer);
             }
             else
             {
-                tileSources = tileSet.LoadTilesetFromDirectory(filename, serializer);
+                string packageDirectory = Path.Combine(Path.GetDirectoryName(filename), Path.GetFileNameWithoutExtension(filename));
+                tileSources = tileSet.LoadTilesetFromDirectory(packageDirectory, serializer);
                 // HACK Create a new package...
-                SaveTileset(filename + ".mdts", tileSources, serializer);
+                SaveTileset(packageDirectory + ".mdts", packageDirectory, tileSources, serializer);
             }
 
             return tileSet;
@@ -171,7 +172,7 @@ namespace Mapdoodle
             return tileSources;
         }
 
-        private static void SaveTileset(string filename, TileSourceDefinition[] tileSources, System.Xml.Serialization.XmlSerializer serializer)
+        private static void SaveTileset(string filename, string directoryName, TileSourceDefinition[] tileSources, System.Xml.Serialization.XmlSerializer serializer)
         {
             Uri partUriMap = PackUriHelper.CreatePartUri(new Uri("Tileset.xml", UriKind.Relative));
             using (Package package = Package.Open(filename, FileMode.Create, FileAccess.ReadWrite))
@@ -188,7 +189,7 @@ namespace Mapdoodle
                 {
                     Uri partUriImage = PackUriHelper.CreatePartUri(new Uri(source.Filename, UriKind.Relative));
                     PackagePart imageDocument = package.CreatePart(partUriImage, "image/png", CompressionOption.NotCompressed);
-                    using (Stream imageInStream = new FileStream(filename + @"\" + source.Filename, FileMode.Open, FileAccess.Read))
+                    using (Stream imageInStream = new FileStream(directoryName + @"\" + source.Filename, FileMode.Open, FileAccess.Read))
                     {
                         using (Stream imageOutStream = imageDocument.GetStream())
                         {
