@@ -14,12 +14,12 @@ namespace Mapdoodle
 {
     public partial class MapForm : Form
     {
-        MapDocument _document;
+        readonly MapDocument document;
 
         public MapForm()
         {
             InitializeComponent();
-            _document = new MapDocument(this);
+            document = new MapDocument(this);
         }
 
         #region Accessors for MapDocument
@@ -56,23 +56,23 @@ namespace Mapdoodle
             if (updateRectangle.Width != 0 && updateRectangle.Height != 0)
                 mapContents.Invalidate(updateRectangle);
 
-            undoToolStripMenuItem.Enabled = buttonUndo.Enabled = _document.CanUndo();
-            redoToolStripMenuItem.Enabled = buttonRedo.Enabled = _document.CanRedo();
+            undoToolStripMenuItem.Enabled = buttonUndo.Enabled = document.CanUndo();
+            redoToolStripMenuItem.Enabled = buttonRedo.Enabled = document.CanRedo();
         }
 
         public void UpdateInterface()
         {
             mapContents.Invalidate();
 
-            undoToolStripMenuItem.Enabled = buttonUndo.Enabled = _document.CanUndo();
-            redoToolStripMenuItem.Enabled = buttonRedo.Enabled = _document.CanRedo();
+            undoToolStripMenuItem.Enabled = buttonUndo.Enabled = document.CanUndo();
+            redoToolStripMenuItem.Enabled = buttonRedo.Enabled = document.CanRedo();
         }
 
         #endregion
 
         private void mapContents_Paint(object sender, PaintEventArgs e)
         {
-            _document.Paint(e.Graphics, e.ClipRectangle);
+            document.Paint(e.Graphics, e.ClipRectangle);
         }
 
         private void MapForm_Load(object sender, EventArgs e)
@@ -85,9 +85,9 @@ namespace Mapdoodle
                 TileSet tileSet = TileSet.Load(@"Data\Simple.mdts");
                 Debug.Assert(tileSet != null);
 
-                _document.NewMap(tileSet);
+                document.NewMap(tileSet);
 
-                _document.FillTerrainList(tileSet);
+                document.FillTerrainList(tileSet);
             }
             catch (FileNotFoundException exception)
             {
@@ -99,58 +99,58 @@ namespace Mapdoodle
 
         private void mapContents_MouseDown(object sender, MouseEventArgs e)
         {
-            _document.BeginDraw(e);
+            document.BeginDraw(e);
         }
 
         private void mapContents_MouseMove(object sender, MouseEventArgs e)
         {
-            _document.ContinueDrawOrHover(e);
+            document.ContinueDrawOrHover(e);
         }
 
         private void mapContents_MouseLeave(object sender, EventArgs e)
         {
-            _document.EndHover(e);
+            document.EndHover(e);
         }
 
         private void terrainList_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (terrainList.SelectedIndices.Count > 0)
-                _document.SetPaintTerrain(terrainList.SelectedIndices[0]);
+                document.SetPaintTerrain(terrainList.SelectedIndices[0]);
         }
 
         private void buttonExport_Click(object sender, EventArgs e)
         {
-            _document.ExportImage();
+            document.ExportImage();
         }
 
         private void buttonUndo_Click(object sender, EventArgs e)
         {
-            _document.Undo();
+            document.Undo();
         }
 
         private void buttonRedo_Click(object sender, EventArgs e)
         {
-            _document.Redo();
+            document.Redo();
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _document.NewMap();
+            document.NewMap();
         }
 
         private void exportToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _document.ExportImage();
+            document.ExportImage();
         }
 
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _document.Undo();
+            document.Undo();
         }
 
         private void redoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _document.Redo();
+            document.Redo();
         }
 
         private void debugToolStripMenuItem_Click(object sender, EventArgs e)
@@ -162,33 +162,33 @@ namespace Mapdoodle
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _document.SaveMapAs();
+            document.SaveMapAs();
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _document.LoadMap();
+            document.LoadMap();
         }
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _document.SaveMap();
+            document.SaveMap();
         }
 
         private void MapForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (!_document.ConfirmClose())
+            if (!document.ConfirmClose())
                 e.Cancel = true;
         }
 
         private void buttonSave_Click(object sender, EventArgs e)
         {
-            _document.SaveMap();
+            document.SaveMap();
         }
 
         private void buttonOpen_Click(object sender, EventArgs e)
         {
-            _document.LoadMap();
+            document.LoadMap();
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -198,12 +198,12 @@ namespace Mapdoodle
 
         private void mapContents_MouseUp(object sender, MouseEventArgs e)
         {
-            _document.EndDraw(e);
+            document.EndDraw(e);
         }
 
         private void buttonNew_Click(object sender, EventArgs e)
         {
-            _document.NewMap();
+            document.NewMap();
         }
     }
 }

@@ -11,9 +11,9 @@ namespace Mapdoodle
 {
     public class Grid<T>
     {
-        int _width;
-        int _height;
-        T[] _squares;
+        readonly int width;
+        readonly int height;
+        readonly T[] squares;
 
         public Grid()
         {
@@ -21,9 +21,9 @@ namespace Mapdoodle
 
         public Grid(int width, int height)
         {
-            _width = width;
-            _height = height;
-            _squares = new T[width * height];
+            this.width = width;
+            this.height = height;
+            squares = new T[width * height];
         }
 
         public T this[int x, int y]
@@ -31,30 +31,30 @@ namespace Mapdoodle
             [DebuggerStepThrough]
             get
             {
-                Debug.Assert(x >= 0 && x < _width);
-                Debug.Assert(y >= 0 && y < _height);
-                return _squares[x + _width * y];
+                Debug.Assert(x >= 0 && x < width);
+                Debug.Assert(y >= 0 && y < height);
+                return squares[x + width * y];
             }
             [DebuggerStepThrough]
             set
             {
-                Debug.Assert(x >= 0 && x < _width);
-                Debug.Assert(y >= 0 && y < _height);
-                _squares[x + _width * y] = value;
+                Debug.Assert(x >= 0 && x < width);
+                Debug.Assert(y >= 0 && y < height);
+                squares[x + width * y] = value;
             }
         }
-        public int Width { get { return _width; } }
-        public int Height { get { return _height; } }
+        public int Width { get { return width; } }
+        public int Height { get { return height; } }
     }
 
 
     public class TerrainBrush : Mapdoodle.IMapBrush
     {
-        TerrainKind _terrain;
+        readonly TerrainKind terrain;
 
         public TerrainBrush(TerrainKind terrain)
         {
-            _terrain = terrain;
+            this.terrain = terrain;
         }
 
         private static void SetTerrainBase(MapState mapState, int squareX, int squareY, TerrainKind terrain)
@@ -74,9 +74,9 @@ namespace Mapdoodle
         {
             for (int layer = 0; layer < 4; layer++)
             {
-                if (terrain1._layerTerrainId[layer] != BorderKind.Null &&
-                    terrain2._layerTerrainId[layer] != BorderKind.Null &&
-                    terrain1._layerTerrainId[layer] != terrain2._layerTerrainId[layer])
+                if (terrain1.LayerTerrainId[layer] != BorderKind.Null &&
+                    terrain2.LayerTerrainId[layer] != BorderKind.Null &&
+                    terrain1.LayerTerrainId[layer] != terrain2.LayerTerrainId[layer])
                     return true;
             }
             return false;
@@ -84,7 +84,7 @@ namespace Mapdoodle
 
         public bool NeedsDraw(MapState state, int squareX, int squareY)
         {
-            return (state.GetSquareKind(squareX, squareY) != _terrain);
+            return (state.GetSquareKind(squareX, squareY) != terrain);
         }
 
         public void DrawAt(TileSet tileSet, MapState mapState, Random rng, int squareX, int squareY)
@@ -98,7 +98,7 @@ namespace Mapdoodle
             int tileYmin = squareY;
             int tileYmax = squareY + 2;
 
-            SetTerrainBase(mapState, squareX, squareY, _terrain);
+            SetTerrainBase(mapState, squareX, squareY, terrain);
             tileSet.SelectTiles(mapState, rng, tileXmin, tileYmin, tileXmax, tileYmax);
 
             for (int x = 0; x <= 1; x++)
@@ -111,7 +111,7 @@ namespace Mapdoodle
                             {
                                 if (x != x2 || y != y2)
                                 {
-                                    if (IncompatibleTerrain(mapState.GetSquareKind(squareX + x - x2, squareY + y - y2), _terrain))
+                                    if (IncompatibleTerrain(mapState.GetSquareKind(squareX + x - x2, squareY + y - y2), terrain))
                                     {
                                         SetTerrainBase(mapState, squareX + x - x2, squareY + y - y2, tileSet.TerrainByIndex[0]);
                                         if (x - x2 < 0)
@@ -130,7 +130,7 @@ namespace Mapdoodle
                 }
             if (needReSelect)
             {
-                SetTerrainBase(mapState, squareX, squareY, _terrain);
+                SetTerrainBase(mapState, squareX, squareY, terrain);
                 tileSet.SelectTiles(mapState, rng, tileXmin, tileYmin, tileXmax, tileYmax);
             }
         }
@@ -138,24 +138,24 @@ namespace Mapdoodle
 
     public class Layer
     {
-        public Grid<Tile> _tiles;
+        public Grid<Tile> Tiles;
 
         public Layer(int width, int height)
         {
-            _tiles = new Grid<Tile>(width + 1, height + 1);
+            Tiles = new Grid<Tile>(width + 1, height + 1);
         }
     }
 
     public class MapState
     {
-        Grid<TerrainKind> _squareKinds;
-        Layer[] _layers;
+        readonly Grid<TerrainKind> squareKinds;
+        readonly Layer[] layers;
 
         public int Width
         {
             get
             {
-                return _squareKinds.Width;
+                return squareKinds.Width;
             }
         }
 
@@ -163,7 +163,7 @@ namespace Mapdoodle
         {
             get
             {
-                return _squareKinds.Height;
+                return squareKinds.Height;
             }
         }
 
@@ -173,85 +173,85 @@ namespace Mapdoodle
 
         public MapState(int width, int height)
         {
-            _squareKinds = new Grid<TerrainKind>(width, height);
-            _layers = new Layer[4];
+            squareKinds = new Grid<TerrainKind>(width, height);
+            layers = new Layer[4];
             for (int i = 0; i < 4; i++)
-                _layers[i] = new Layer(width, height);
+                layers[i] = new Layer(width, height);
         }
 
         public void CopyFrom(MapState state)
         {
-            Debug.Assert(state._squareKinds.Width == _squareKinds.Width);
-            Debug.Assert(state._squareKinds.Height == _squareKinds.Height);
+            Debug.Assert(state.squareKinds.Width == squareKinds.Width);
+            Debug.Assert(state.squareKinds.Height == squareKinds.Height);
 
-            for (int x = 0; x < _squareKinds.Width; x++)
-                for (int y = 0; y < _squareKinds.Height; y++)
-                    _squareKinds[x, y] = state._squareKinds[x, y];
+            for (int x = 0; x < squareKinds.Width; x++)
+                for (int y = 0; y < squareKinds.Height; y++)
+                    squareKinds[x, y] = state.squareKinds[x, y];
 
-            for (int x = 0; x < _squareKinds.Width + 1; x++)
-                for (int y = 0; y < _squareKinds.Height + 1; y++)
+            for (int x = 0; x < squareKinds.Width + 1; x++)
+                for (int y = 0; y < squareKinds.Height + 1; y++)
                     for (int layer = 0; layer < 4; layer++)
-                        _layers[layer]._tiles[x, y] = state._layers[layer]._tiles[x, y];
+                        layers[layer].Tiles[x, y] = state.layers[layer].Tiles[x, y];
         }
 
         public TerrainKind GetSquareKind(int squareX, int squareY)
         {
             if (squareX < 0)
                 squareX = 0;
-            if (squareX >= _squareKinds.Width)
-                squareX = _squareKinds.Width - 1;
+            if (squareX >= squareKinds.Width)
+                squareX = squareKinds.Width - 1;
             if (squareY < 0)
                 squareY = 0;
-            if (squareY >= _squareKinds.Height)
-                squareY = _squareKinds.Height - 1;
+            if (squareY >= squareKinds.Height)
+                squareY = squareKinds.Height - 1;
 
-            return _squareKinds[squareX, squareY];
+            return squareKinds[squareX, squareY];
         }
 
         public void SetSquareKind(int squareX, int squareY, TerrainKind terrain)
         {
-            _squareKinds[squareX, squareY] = terrain;
+            squareKinds[squareX, squareY] = terrain;
         }
 
         public Tile GetTile(int layer, int tileX, int tileY)
         {
-            return _layers[layer]._tiles[tileX, tileY];
+            return layers[layer].Tiles[tileX, tileY];
         }
 
         public void SetTile(int layer, int tileX, int tileY, Tile tile)
         {
-            _layers[layer]._tiles[tileX, tileY] = tile;
+            layers[layer].Tiles[tileX, tileY] = tile;
         }
     }
 
     public class Map
     {
-        int _width;
-        int _height;
+        readonly int width;
+        readonly int height;
 
-        MapState _state;
-        MapState _stateHover;
+        MapState state;
+        readonly MapState stateHover;
 
-        List<MapState> _undoStack = new List<MapState>();
-        List<MapState> _redoStack = new List<MapState>();
+        readonly List<MapState> undoStack = new List<MapState>();
+        readonly List<MapState> redoStack = new List<MapState>();
 
-        TileSet _tileSet;
+        readonly TileSet tileSet;
 
-        public Random _rng = new Random();
+        public Random Rng = new Random();
 
         public Map(TileSet tileSet, int width, int height)
         {
-            _tileSet = tileSet;
-            _width = width;
-            _height = height;
-            _state = new MapState(_width, _height);
-            _stateHover = new MapState(_width, _height);
+            this.tileSet = tileSet;
+            this.width = width;
+            this.height = height;
+            state = new MapState(this.width, this.height);
+            stateHover = new MapState(this.width, this.height);
 
             for (int y = 0; y < height; y++)
                 for (int x = 0; x < height; x++)
-                    _state.SetSquareKind(x, y, TerrainKind.Floor);
+                    state.SetSquareKind(x, y, TerrainKind.Floor);
 
-            _tileSet.SelectTiles(_state, _rng, 0, 0, _width + 1, _height + 1);
+            this.tileSet.SelectTiles(state, Rng, 0, 0, this.width + 1, this.height + 1);
             ClearHoverTerrain();
         }
 
@@ -271,7 +271,7 @@ namespace Mapdoodle
             int height = int.Parse(xml.ReadElementString("Height"));
 
             Map map = new Map(tileSet, width, height);
-            MapState state = map._state;
+            MapState state = map.state;
 
             xml.ReadStartElement("Terrain");
             for (int y = 0; y < height; y++)
@@ -292,7 +292,7 @@ namespace Mapdoodle
                 int y = int.Parse(xml.ReadElementString("Y"));
                 int value = int.Parse(xml.ReadElementString("Value"));
 
-                Tile tile = tileSet._tileList[value];
+                Tile tile = tileSet.TileList[value];
                 if (tile.IsLarge)
                 {
                     for (int subX = 0; subX < tile.Width; subX++)
@@ -316,16 +316,16 @@ namespace Mapdoodle
 
         public void SerializeTo(StreamWriter stream)
         {
-            TileSet tileSet = _tileSet;
-            MapState state = _state;
+            TileSet tileSet = this.tileSet;
+            MapState state = this.state;
 
             Dictionary<TerrainKind, string> terrainIds = new Dictionary<TerrainKind, string>();
             for (int i = 0; i < tileSet.TerrainByIndex.Length; i++)
                 terrainIds[tileSet.TerrainByIndex[i]] = i.ToString();
 
             Dictionary<Tile, string> tileIds = new Dictionary<Tile, string>();
-            for (int i = 0; i < tileSet._tileList.Count; i++)
-                tileIds[tileSet._tileList[i]] = i.ToString();
+            for (int i = 0; i < tileSet.TileList.Count; i++)
+                tileIds[tileSet.TileList[i]] = i.ToString();
 
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
@@ -340,7 +340,7 @@ namespace Mapdoodle
             xml.WriteStartElement("Terrain");
             for (int y = 0; y < Height; y++)
                 for (int x = 0; x < Width; x++)
-                    xml.WriteElementString("Square", terrainIds[_state.GetSquareKind(x, y)]);
+                    xml.WriteElementString("Square", terrainIds[this.state.GetSquareKind(x, y)]);
             xml.WriteEndElement(); /* Terrain */
 
             xml.WriteStartElement("Tiles");
@@ -348,11 +348,11 @@ namespace Mapdoodle
                 for (int y = 0; y < Height + 1; y++)
                     for (int x = 0; x < Width + 1; x++)
                     {
-                        Tile tile = _state.GetTile(layer, x, y);
-                        if (tile.IsLarge && (tile._xPosition > 0 || tile._yPosition > 0))
+                        Tile tile = this.state.GetTile(layer, x, y);
+                        if (tile.IsLarge && (tile.XPosition > 0 || tile.YPosition > 0))
                             continue;
                         if (tile.IsLarge)
-                            tile = tile._superTile;
+                            tile = tile.SuperTile;
 
                         xml.WriteStartElement("Tile");
                         xml.WriteElementString("Layer", layer.ToString());
@@ -370,43 +370,43 @@ namespace Mapdoodle
 
         public void SaveUndo()
         {
-            MapState undoState = new MapState(_width, _height);
-            undoState.CopyFrom(_state);
-            _undoStack.Add(undoState);
-            if (_undoStack.Count > 100)
-                _undoStack.RemoveAt(0);
+            MapState undoState = new MapState(width, height);
+            undoState.CopyFrom(state);
+            undoStack.Add(undoState);
+            if (undoStack.Count > 100)
+                undoStack.RemoveAt(0);
 
-            _redoStack.Clear();
+            redoStack.Clear();
         }
 
         public bool CanUndo()
         {
-            return _undoStack.Count > 0;
+            return undoStack.Count > 0;
         }
 
         public bool CanRedo()
         {
-            return _redoStack.Count > 0;
+            return redoStack.Count > 0;
         }
 
         public bool Undo()
         {
-            if (_undoStack.Count == 0)
+            if (undoStack.Count == 0)
                 return false;
-            _redoStack.Add(_state);
-            _state = _undoStack[_undoStack.Count - 1];
-            _undoStack.RemoveAt(_undoStack.Count - 1);
+            redoStack.Add(state);
+            state = undoStack[undoStack.Count - 1];
+            undoStack.RemoveAt(undoStack.Count - 1);
             ClearHoverTerrain();
             return true;
         }
 
         public bool Redo()
         {
-            if (_redoStack.Count == 0)
+            if (redoStack.Count == 0)
                 return false;
-            _undoStack.Add(_state);
-            _state = _redoStack[_redoStack.Count - 1];
-            _redoStack.RemoveAt(_redoStack.Count - 1);
+            undoStack.Add(state);
+            state = redoStack[redoStack.Count - 1];
+            redoStack.RemoveAt(redoStack.Count - 1);
             ClearHoverTerrain();
             return true;
         }
@@ -416,7 +416,7 @@ namespace Mapdoodle
             Grid<BorderKind> terrainMap = new Grid<BorderKind>(tileXLimit - tileX + 1, tileYLimit - tileY + 1);
             for (int y = 0; y < terrainMap.Height; y++)
                 for (int x = 0; x < terrainMap.Width; x++)
-                    terrainMap[x, y] = mapState.GetSquareKind(tileX + x - 1, tileY + y - 1)._layerTerrainId[layer];
+                    terrainMap[x, y] = mapState.GetSquareKind(tileX + x - 1, tileY + y - 1).LayerTerrainId[layer];
             return terrainMap;
         }
 
@@ -448,10 +448,10 @@ namespace Mapdoodle
                 return new Rectangle();
 
             return new Rectangle(
-                left * _tileSet.TileWidth - _tileSet.TileXOffset,
-                top * _tileSet.TileHeight - _tileSet.TileYOffset,
-                (right - left + 1) * _tileSet.TileWidth,
-                (bottom - top + 1) * _tileSet.TileHeight);
+                left * tileSet.TileWidth - tileSet.TileXOffset,
+                top * tileSet.TileHeight - tileSet.TileYOffset,
+                (right - left + 1) * tileSet.TileWidth,
+                (bottom - top + 1) * tileSet.TileHeight);
         }
 
         public void SetTerrain(int squareX, int squareY, IMapBrush brush, out Rectangle updateRectangle)
@@ -461,11 +461,11 @@ namespace Mapdoodle
             if (squareX < 0 || squareX >= Width || squareY < 0 || squareY >= Width)
                 return;
 
-            MapState oldState = new MapState(_stateHover.Width, _state.Height);
-            oldState.CopyFrom(_state);
+            MapState oldState = new MapState(stateHover.Width, state.Height);
+            oldState.CopyFrom(state);
 
-            brush.DrawAt(_tileSet, _state, _rng, squareX, squareY);
-            updateRectangle = CalculateUpdateRectangle(oldState, _state);
+            brush.DrawAt(tileSet, state, Rng, squareX, squareY);
+            updateRectangle = CalculateUpdateRectangle(oldState, state);
 
             ClearHoverTerrain();
         }
@@ -477,28 +477,28 @@ namespace Mapdoodle
             if (squareX < 0 || squareX >= Width || squareY < 0 || squareY >= Width)
                 return false;
 
-            MapState oldState = new MapState(_stateHover.Width, _stateHover.Height);
-            oldState.CopyFrom(_stateHover);
+            MapState oldState = new MapState(stateHover.Width, stateHover.Height);
+            oldState.CopyFrom(stateHover);
 
-            if (!brush.NeedsDraw(_state, squareX, squareY))
+            if (!brush.NeedsDraw(state, squareX, squareY))
             {
                 ClearHoverTerrain();
-                updateRectangle = CalculateUpdateRectangle(oldState, _stateHover);
+                updateRectangle = CalculateUpdateRectangle(oldState, stateHover);
                 return true;
             }
 
-            if (!brush.NeedsDraw(_stateHover, squareX, squareY))
+            if (!brush.NeedsDraw(stateHover, squareX, squareY))
                 return false;
 
             ClearHoverTerrain();
-            brush.DrawAt(_tileSet, _stateHover, null /* rng */, squareX, squareY);
-            updateRectangle = CalculateUpdateRectangle(oldState, _stateHover);
+            brush.DrawAt(tileSet, stateHover, null /* rng */, squareX, squareY);
+            updateRectangle = CalculateUpdateRectangle(oldState, stateHover);
             return true;
         }
 
         public void ClearHoverTerrain()
         {
-            _stateHover.CopyFrom(_state);
+            stateHover.CopyFrom(state);
         }
 
         public void DrawToGraphics(Graphics target, Rectangle clipRectangle)
@@ -506,14 +506,14 @@ namespace Mapdoodle
             Debug.Assert(clipRectangle.Width > 0);
             Debug.Assert(clipRectangle.Height > 0);
 
-            int tileWidth = _tileSet.TileWidth;
-            int tileHeight = _tileSet.TileHeight;
-            int offsetX = _tileSet.TileXOffset;
-            int offsetY = _tileSet.TileYOffset;
+            int tileWidth = tileSet.TileWidth;
+            int tileHeight = tileSet.TileHeight;
+            int offsetX = tileSet.TileXOffset;
+            int offsetY = tileSet.TileYOffset;
 
-            for (int y = _height; y >= 0; y--)
+            for (int y = height; y >= 0; y--)
             {
-                for (int x = _width; x >= 0; x--)
+                for (int x = width; x >= 0; x--)
                 {
                     int destX = tileWidth * x - offsetX;
                     int destY = tileHeight * y - offsetY;
@@ -529,7 +529,7 @@ namespace Mapdoodle
 
                     for (int layer = 0; layer < 4; layer++)
                     {
-                        Tile tile = _state.GetTile(layer, x, y);
+                        Tile tile = state.GetTile(layer, x, y);
                         if (tile != null)
                             tile.DrawToGraphics(target, destX, destY);
                         else
@@ -543,13 +543,13 @@ namespace Mapdoodle
             }
 
             // Paint hover
-            for (int y = _height; y >= 0; y--)
+            for (int y = height; y >= 0; y--)
             {
-                for (int x = _width; x >= 0; x--)
+                for (int x = width; x >= 0; x--)
                 {
                     bool needDraw = false;
                     for (int layer = 0; layer < 4; layer++)
-                        if (_state.GetTile(layer, x, y) != _stateHover.GetTile(layer, x, y))
+                        if (state.GetTile(layer, x, y) != stateHover.GetTile(layer, x, y))
                             needDraw = true;
 
                     if (!needDraw)
@@ -567,11 +567,11 @@ namespace Mapdoodle
                     if (destY + tileHeight <= clipRectangle.Top)
                         continue;
 
-                    Bitmap hoverBitmap = new Bitmap(_tileSet.TileWidth, _tileSet.TileHeight);
+                    Bitmap hoverBitmap = new Bitmap(tileSet.TileWidth, tileSet.TileHeight);
                     Graphics hoverGraphics = Graphics.FromImage(hoverBitmap);
                     for (int layer = 0; layer < 4; layer++)
                     {
-                        Tile tile = _stateHover.GetTile(layer, x, y);
+                        Tile tile = stateHover.GetTile(layer, x, y);
                         if (tile != null)
                             tile.DrawToGraphics(hoverGraphics, 0, 0);
                         else
@@ -600,28 +600,28 @@ namespace Mapdoodle
             {
                 for (int subY = 0; subY <= 1; subY++)
                 {
-                    TerrainKind squareKind = _state.GetSquareKind(x + subX - 1, y + subY - 1);
-                    Tile defaultTile = _tileSet.GetDefaultTile(squareKind, layer);
+                    TerrainKind squareKind = state.GetSquareKind(x + subX - 1, y + subY - 1);
+                    Tile defaultTile = tileSet.GetDefaultTile(squareKind, layer);
                     int sourceX, sourceY, sourceWidth, sourceHeight;
                     if (subX == 0)
                     {
                         sourceX = 0;
-                        sourceWidth = _tileSet.TileXOffset;
+                        sourceWidth = tileSet.TileXOffset;
                     }
                     else
                     {
-                        sourceX = _tileSet.TileXOffset;
-                        sourceWidth = _tileSet.TileWidth - _tileSet.TileXOffset;
+                        sourceX = tileSet.TileXOffset;
+                        sourceWidth = tileSet.TileWidth - tileSet.TileXOffset;
                     }
                     if (subY == 0)
                     {
                         sourceY = 0;
-                        sourceHeight = _tileSet.TileYOffset;
+                        sourceHeight = tileSet.TileYOffset;
                     }
                     else
                     {
-                        sourceY = _tileSet.TileYOffset;
-                        sourceHeight = _tileSet.TileHeight - _tileSet.TileYOffset;
+                        sourceY = tileSet.TileYOffset;
+                        sourceHeight = tileSet.TileHeight - tileSet.TileYOffset;
                     }
                     Rectangle rect = new Rectangle(sourceX, sourceY, sourceWidth, sourceHeight);
                     if (defaultTile != null)
@@ -629,12 +629,12 @@ namespace Mapdoodle
                 }
             }
             target.DrawRectangle(new Pen(Color.FromArgb(255, 255, 0, 0)),
-                new Rectangle(destX, destY, _tileSet.TileWidth - 1, _tileSet.TileWidth - 1));
+                new Rectangle(destX, destY, tileSet.TileWidth - 1, tileSet.TileWidth - 1));
         }
 #endif
 
-        public int Width { get { return _width; } }
-        public int Height { get { return _height; } }
-        public TileSet TileSet { get { return _tileSet; } }
+        public int Width { get { return width; } }
+        public int Height { get { return height; } }
+        public TileSet TileSet { get { return tileSet; } }
     }
 }

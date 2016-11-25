@@ -75,6 +75,7 @@
   <ItemGroup>
     <Compile Include="IMapBrush.cs" />
     <Compile Include="Map.cs" />
+    <Compile Include="MapDocument.cs" />
     <Compile Include="MapForm.cs">
       <SubType>Form</SubType>
     </Compile>

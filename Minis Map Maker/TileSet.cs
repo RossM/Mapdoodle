@@ -14,56 +14,56 @@ namespace Mapdoodle
     public class SpecialTileDefinition
     {
         [XmlElement(ElementName = "AutoPlace")]
-        public bool _autoPlace;
+        public bool AutoPlace;
         [XmlElement(ElementName = "Left")]
-        public int _left;
+        public int Left;
         [XmlElement(ElementName = "Top")]
-        public int _top;
+        public int Top;
         [XmlElement(ElementName = "Width")]
-        public int _width;
+        public int Width;
         [XmlElement(ElementName = "Height")]
-        public int _height;
+        public int Height;
         public SpecialTileDefinition()
         {
         }
         public SpecialTileDefinition(bool autoPlace, int left, int top, int width, int height)
         {
-            _autoPlace = autoPlace;
-            _left = left;
-            _top = top;
-            _width = width;
-            _height = height;
+            AutoPlace = autoPlace;
+            Left = left;
+            Top = top;
+            Width = width;
+            Height = height;
         }
     }
 
     public class TileSourceDefinition
     {
         [XmlElement(ElementName = "Filename")]
-        public string _filename;
+        public string Filename;
         [XmlElement(ElementName = "Layer")]
-        public int _layer;
+        public int Layer;
         [XmlElement(ElementName = "TileWidth")]
-        public int _tileWidth;
+        public int TileWidth;
         [XmlElement(ElementName = "TileHeight")]
-        public int _tileHeight;
+        public int TileHeight;
         [XmlElement(ElementName = "MapWidth")]
-        public int _mapWidth;
+        public int MapWidth;
         [XmlElement(ElementName = "MapHeight")]
-        public int _mapHeight;
+        public int MapHeight;
         [XmlElement(ElementName = "ImageWidth")]
-        public int _imageWidth;
+        public int ImageWidth;
         [XmlElement(ElementName = "ImageHeight")]
-        public int _imageHeight;
+        public int ImageHeight;
         [XmlElement(ElementName = "ImageLeft")]
-        public int _imageLeft;
+        public int ImageLeft;
         [XmlElement(ElementName = "ImageTop")]
-        public int _imageTop;
+        public int ImageTop;
         [XmlArray(ElementName = "BorderKinds")]
-        public string[] _borderKinds;
+        public string[] BorderKinds;
         [XmlArray(ElementName = "Squares")]
-        public int[] _squares;
+        public int[] Squares;
         [XmlArray(ElementName = "SpecialTiles")]
-        public SpecialTileDefinition[] _specialTiles;
+        public SpecialTileDefinition[] SpecialTiles;
 
         public TileSourceDefinition()
         {
@@ -73,19 +73,19 @@ namespace Mapdoodle
             int imageWidth, int imageHeight, int imageLeft, int imageTop, 
             string[] borderKinds, int[] squares, SpecialTileDefinition[] specialTiles)
         {
-            _filename = filename;
-            _layer = layer;
-            _tileWidth = tileWidth;
-            _tileHeight = tileHeight;
-            _mapWidth = mapWidth;
-            _mapHeight = mapHeight;
-            _imageWidth = imageWidth;
-            _imageHeight = imageHeight;
-            _imageTop = imageTop;
-            _imageLeft = imageLeft;
-            _borderKinds = borderKinds;
-            _squares = squares;
-            _specialTiles = specialTiles;
+            Filename = filename;
+            Layer = layer;
+            TileWidth = tileWidth;
+            TileHeight = tileHeight;
+            MapWidth = mapWidth;
+            MapHeight = mapHeight;
+            ImageWidth = imageWidth;
+            ImageHeight = imageHeight;
+            ImageTop = imageTop;
+            ImageLeft = imageLeft;
+            BorderKinds = borderKinds;
+            Squares = squares;
+            SpecialTiles = specialTiles;
         }
     }
 
@@ -104,7 +104,7 @@ namespace Mapdoodle
             TerrainKind.Water,
         };
 
-        internal List<Tile> _tileList = new List<Tile>();
+        internal List<Tile> TileList = new List<Tile>();
 
         public static TileSet Load(string filename)
         {
@@ -141,7 +141,7 @@ namespace Mapdoodle
 
                 foreach (TileSourceDefinition source in tileSources)
                 {
-                    Uri partUriImage = PackUriHelper.CreatePartUri(new Uri(source._filename, UriKind.Relative));
+                    Uri partUriImage = PackUriHelper.CreatePartUri(new Uri(source.Filename, UriKind.Relative));
                     PackagePart imageDocument = package.GetPart(partUriImage);
                     using (Stream imageStream = imageDocument.GetStream())
                     {
@@ -162,7 +162,7 @@ namespace Mapdoodle
 
             foreach (TileSourceDefinition source in tileSources)
             {
-                using (Stream imageStream = new FileStream(filename + @"\" + source._filename, FileMode.Open, FileAccess.Read))
+                using (Stream imageStream = new FileStream(filename + @"\" + source.Filename, FileMode.Open, FileAccess.Read))
                 {
                     AddTileSource(source, imageStream);
                 }
@@ -186,9 +186,9 @@ namespace Mapdoodle
 
                 foreach (TileSourceDefinition source in tileSources)
                 {
-                    Uri partUriImage = PackUriHelper.CreatePartUri(new Uri(source._filename, UriKind.Relative));
+                    Uri partUriImage = PackUriHelper.CreatePartUri(new Uri(source.Filename, UriKind.Relative));
                     PackagePart imageDocument = package.CreatePart(partUriImage, "image/png", CompressionOption.NotCompressed);
-                    using (Stream imageInStream = new FileStream(filename + @"\" + source._filename, FileMode.Open, FileAccess.Read))
+                    using (Stream imageInStream = new FileStream(filename + @"\" + source.Filename, FileMode.Open, FileAccess.Read))
                     {
                         using (Stream imageOutStream = imageDocument.GetStream())
                         {
@@ -232,35 +232,35 @@ namespace Mapdoodle
         {
             Bitmap image = new Bitmap(stream);
 
-            Grid<bool> useSquares = new Grid<bool>(source._mapWidth, source._mapHeight);
-            for (int x = 0; x < source._mapWidth; x++)
-                for (int y = 0; y < source._mapHeight; y++)
+            Grid<bool> useSquares = new Grid<bool>(source.MapWidth, source.MapHeight);
+            for (int x = 0; x < source.MapWidth; x++)
+                for (int y = 0; y < source.MapHeight; y++)
                     useSquares[x, y] = true;
 
-            BorderKind[] borderKinds = new BorderKind[source._borderKinds.Count()];
-            for (int i = 0; i < source._borderKinds.Count(); i++)
-                borderKinds[i] = FindBorderKind(source._borderKinds[i]);            
+            BorderKind[] borderKinds = new BorderKind[source.BorderKinds.Count()];
+            for (int i = 0; i < source.BorderKinds.Count(); i++)
+                borderKinds[i] = FindBorderKind(source.BorderKinds[i]);            
 
-            Grid<BorderKind> squares = new Grid<BorderKind>(source._mapWidth, source._mapHeight);
-            for (int x = 0; x < source._mapWidth; x++)
-                for (int y = 0; y < source._mapHeight; y++)
-                    squares[x, y] = borderKinds[source._squares[x + y * source._mapWidth]];
+            Grid<BorderKind> squares = new Grid<BorderKind>(source.MapWidth, source.MapHeight);
+            for (int x = 0; x < source.MapWidth; x++)
+                for (int y = 0; y < source.MapHeight; y++)
+                    squares[x, y] = borderKinds[source.Squares[x + y * source.MapWidth]];
 
-            int baseX = TileXOffset - source._imageLeft;
-            int baseY = TileYOffset - source._imageTop;
+            int baseX = TileXOffset - source.ImageLeft;
+            int baseY = TileYOffset - source.ImageTop;
 
             // Add special tiles
-            foreach (SpecialTileDefinition special in source._specialTiles)
+            foreach (SpecialTileDefinition special in source.SpecialTiles)
             {
-                int left = special._left;
-                int top = special._top;
-                int width = special._width;
-                int height = special._height;
+                int left = special.Left;
+                int top = special.Top;
+                int width = special.Width;
+                int height = special.Height;
                 Tile tile = CreateTileFromTileSource(image, squares, baseX, baseY, left, top, width, height);  
 
                 // Add it?
-                if (special._autoPlace)
-                    _tileList.Add(tile);
+                if (special.AutoPlace)
+                    TileList.Add(tile);
 
                 // Squares inside the special tile are not normal squares
                 for (int x = 0; x < width; x++)
@@ -269,13 +269,13 @@ namespace Mapdoodle
             }
 
             // Add normal tiles, except those excluded as part of special tiles.
-            for (int x = 0; x < source._mapWidth - 1; x++)
-                for (int y = 0; y < source._mapHeight - 1; y++) 
+            for (int x = 0; x < source.MapWidth - 1; x++)
+                for (int y = 0; y < source.MapHeight - 1; y++) 
                 {
                     if (useSquares[x, y]) 
                     {
                         Tile tile = CreateTileFromTileSource(image, squares, baseX, baseY, x, y, 1, 1);
-                        _tileList.Add(tile);
+                        TileList.Add(tile);
                     }
                 }
         }
@@ -299,7 +299,7 @@ namespace Mapdoodle
             List<Tile>[] candidates = new List<Tile>[5];
             for (int i = 0; i <= 4; i++)
                 candidates[i] = new List<Tile>();
-            foreach (Tile t in _tileList)
+            foreach (Tile t in TileList)
             {
                 if (t.IsLarge != large)
                     continue;
@@ -335,7 +335,7 @@ namespace Mapdoodle
                         tileY + y >= terrainId.Height)
                         return false;
 
-                    BorderKind terrain1 = t._terrainId[x, y];
+                    BorderKind terrain1 = t.TerrainId[x, y];
                     BorderKind terrain2 = terrainId[tileX + x, tileY + y];
                     if (!terrain1.IsCompatible(terrain2))
                         return false;
@@ -349,7 +349,7 @@ namespace Mapdoodle
 
         public Tile GetDefaultTile(TerrainKind terrain, int layer)
         {
-            BorderKind terrainId = terrain._layerTerrainId[layer];
+            BorderKind terrainId = terrain.LayerTerrainId[layer];
             Grid<BorderKind> g = new Grid<BorderKind>(2, 2);
             g[0, 0] = g[0, 1] = g[1, 0] = g[1, 1] = terrainId;
 
@@ -386,8 +386,8 @@ namespace Mapdoodle
                         Tile t = mapState.GetTile(layer, x, y);
                         if (t != null && t.IsLarge)
                         {
-                            int baseX = x - t._xPosition;
-                            int baseY = y - t._yPosition;
+                            int baseX = x - t.XPosition;
+                            int baseY = y - t.YPosition;
                             SelectTilesBase(mapState, rng, baseX, baseY, baseX + t.Width, baseY + t.Height);
                         }
                     }
@@ -416,7 +416,7 @@ namespace Mapdoodle
                 Grid<BorderKind> terrainId = new Grid<BorderKind>(width + 2, height + 2);
                 for (int y = 0; y < terrainId.Height; y++)
                     for (int x = 0; x < terrainId.Width; x++)
-                        terrainId[x, y] = mapState.GetSquareKind(x - 1, y - 1)._layerTerrainId[layer];
+                        terrainId[x, y] = mapState.GetSquareKind(x - 1, y - 1).LayerTerrainId[layer];
                 for (int x = 0; x < tileXLimit; x++)
                     for (int y = 0; y < tileYLimit; y++)
                     {
@@ -477,36 +477,38 @@ namespace Mapdoodle
 
     public class Tile
     {
-        Bitmap _bitmap;
-        public Grid<BorderKind> _terrainId;
-        int _baseX, _baseY;
-        int _imageWidth, _imageHeight;
-        int _width, _height;
-        public int _xPosition, _yPosition;
-        public Tile _superTile = null;
-        Bitmap _cacheBitmap;
+        readonly Bitmap bitmap;
+        public Grid<BorderKind> TerrainId;
+        readonly int baseX;
+        readonly int baseY;
+        readonly int imageWidth;
+        readonly int imageHeight;
+        int width, height;
+        public int XPosition, YPosition;
+        public Tile SuperTile = null;
+        readonly Bitmap cacheBitmap;
         public Tile(Bitmap bitmap, int baseX, int baseY, int imageWidth, int imageHeight, int width, int height, params BorderKind[] terrainId)
         {
-            _bitmap = bitmap;
-            _baseX = baseX;
-            _baseY = baseY;
-            _imageWidth = imageWidth;
-            _imageHeight = imageHeight;
-            _width = width;
-            _height = height;
+            this.bitmap = bitmap;
+            this.baseX = baseX;
+            this.baseY = baseY;
+            this.imageWidth = imageWidth;
+            this.imageHeight = imageHeight;
+            this.width = width;
+            this.height = height;
             if (terrainId != null)
             {
-                _terrainId = new Grid<BorderKind>(_width + 1, _height + 1);
-                for (int y = 0; y <= _height; y++)
-                    for (int x = 0; x <= _width; x++)
-                        _terrainId[x, y] = terrainId[x + y * (_width + 1)];
+                TerrainId = new Grid<BorderKind>(this.width + 1, this.height + 1);
+                for (int y = 0; y <= this.height; y++)
+                    for (int x = 0; x <= this.width; x++)
+                        TerrainId[x, y] = terrainId[x + y * (this.width + 1)];
             }
 
-            _cacheBitmap = new Bitmap(imageWidth, imageHeight);
-            Graphics g = Graphics.FromImage(_cacheBitmap);
-            g.DrawImage(_bitmap,
-                new Rectangle(0, 0, _imageWidth, _imageHeight),
-                new Rectangle(_baseX, _baseY, _imageWidth, _imageHeight),
+            cacheBitmap = new Bitmap(imageWidth, imageHeight);
+            Graphics g = Graphics.FromImage(cacheBitmap);
+            g.DrawImage(this.bitmap,
+                new Rectangle(0, 0, this.imageWidth, this.imageHeight),
+                new Rectangle(this.baseX, this.baseY, this.imageWidth, this.imageHeight),
                 GraphicsUnit.Pixel);
         }
         public Tile GetSubtile(int xPosition, int yPosition)
@@ -515,25 +517,25 @@ namespace Mapdoodle
                 return this;
 
             Tile subtile = new Tile(Bitmap, 
-                _baseX + (_imageWidth / _width) * xPosition, _baseY + (_imageHeight / _height) * yPosition,
-                (_imageWidth / _width), (_imageHeight / _height), 1, 1, null);
-            subtile._xPosition = xPosition;
-            subtile._yPosition = yPosition;
-            subtile._width = _width;
-            subtile._height = _height;
-            subtile._superTile = this;
+                baseX + (imageWidth / width) * xPosition, baseY + (imageHeight / height) * yPosition,
+                (imageWidth / width), (imageHeight / height), 1, 1, null);
+            subtile.XPosition = xPosition;
+            subtile.YPosition = yPosition;
+            subtile.width = width;
+            subtile.height = height;
+            subtile.SuperTile = this;
             return subtile;
         }
-        public Bitmap Bitmap { get { return _bitmap; } }
-        public int Width { get { return _width; } }
-        public int Height { get { return _height; } }
-        public bool IsLarge { get { return (_width > 1 || _height > 1); } }
+        public Bitmap Bitmap { get { return bitmap; } }
+        public int Width { get { return width; } }
+        public int Height { get { return height; } }
+        public bool IsLarge { get { return (width > 1 || height > 1); } }
 
         public void DrawToGraphics(Graphics target, int destX, int destY)
         {
-            target.DrawImage(_cacheBitmap,
-                new Rectangle(destX, destY, _imageWidth, _imageHeight),
-                new Rectangle(0, 0, _imageWidth, _imageHeight),
+            target.DrawImage(cacheBitmap,
+                new Rectangle(destX, destY, imageWidth, imageHeight),
+                new Rectangle(0, 0, imageWidth, imageHeight),
                 GraphicsUnit.Pixel);
 
 #if DEBUGTILES
@@ -545,7 +547,7 @@ namespace Mapdoodle
 
         public void DrawToGraphics(Graphics target, int destX, int destY, Rectangle rect)
         {
-            target.DrawImage(_cacheBitmap,
+            target.DrawImage(cacheBitmap,
                 new Rectangle(destX + rect.X, destY + rect.Y, rect.Width, rect.Height),
                 new Rectangle(0 + rect.X, 0 + rect.Y, rect.Width, rect.Height),
                 GraphicsUnit.Pixel);
@@ -555,14 +557,14 @@ namespace Mapdoodle
 
     public class BorderKind
     {
-        string _name;
-        List<BorderKind> _compatible;
+        readonly string name;
+        readonly List<BorderKind> compatible;
 
         public bool IsCompatible(BorderKind kind)
         {
             if (kind == this)
                 return true;
-            foreach (BorderKind test in _compatible)
+            foreach (BorderKind test in compatible)
             {
                 if (test == kind)
                     return true;
@@ -572,14 +574,14 @@ namespace Mapdoodle
 
         public static void MakeCompatible(BorderKind kind1, BorderKind kind2)
         {
-            kind1._compatible.Add(kind2);
-            kind2._compatible.Add(kind1);
+            kind1.compatible.Add(kind2);
+            kind2.compatible.Add(kind1);
         }
 
         BorderKind(string name)
         {
-            _name = name;
-            _compatible = new List<BorderKind>();
+            this.name = name;
+            compatible = new List<BorderKind>();
         }
 
         public static BorderKind Null = new BorderKind("null");
@@ -591,24 +593,24 @@ namespace Mapdoodle
 
         public override string ToString()
         {
-            return _name;
+            return name;
         }
     }
 
     public class TerrainKind
     {
-        public string _name;
-        public BorderKind[] _layerTerrainId;
+        public string Name;
+        public BorderKind[] LayerTerrainId;
 
         public TerrainKind(string name, params BorderKind[] layerTerrainId)
         {
-            _name = name;
-            _layerTerrainId = layerTerrainId;
+            Name = name;
+            LayerTerrainId = layerTerrainId;
         }
 
         public override string ToString()
         {
-            return _name;
+            return Name;
         }
 
         public static TerrainKind Floor = new TerrainKind("Floor", BorderKind.Floor, BorderKind.Null, BorderKind.Null, BorderKind.Null);
