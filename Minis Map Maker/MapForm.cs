@@ -12,7 +12,7 @@ using System.Diagnostics;
 
 namespace Mapdoodle
 {
-    public partial class MapForm : Form
+    public partial class MapForm : Form, IMapForm
     {
         readonly MapDocument document;
 

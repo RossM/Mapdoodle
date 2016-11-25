@@ -11,7 +11,7 @@ namespace Mapdoodle
 {
     public class MapDocument
     {
-        private readonly MapForm form;
+        private readonly IMapForm form;
         private string currentFilename;
         private Map currentMap;
         private int dirtyCount;
@@ -117,17 +117,14 @@ namespace Mapdoodle
             {
                 using (Stream outStream = dialog.OpenFile())
                 {
-                    if (outStream != null)
-                    {
-                        var bitmap = new Bitmap(currentMap.Width * currentMap.TileSet.TileWidth,
-                            currentMap.Height * currentMap.TileSet.TileHeight);
-                        Graphics graphics = Graphics.FromImage(bitmap);
-                        currentMap.DrawToGraphics(graphics,
-                            new Rectangle(0, 0, bitmap.Width, bitmap.Height));
+                    var bitmap = new Bitmap(currentMap.Width * currentMap.TileSet.TileWidth,
+                        currentMap.Height * currentMap.TileSet.TileHeight);
+                    Graphics graphics = Graphics.FromImage(bitmap);
+                    currentMap.DrawToGraphics(graphics,
+                        new Rectangle(0, 0, bitmap.Width, bitmap.Height));
 
-                        bitmap.Save(outStream, ImageFormat.Png);
-                        form.SetStatusText(string.Format("Exported to {0}.", currentFilename));
-                    }
+                    bitmap.Save(outStream, ImageFormat.Png);
+                    form.SetStatusText(string.Format("Exported to {0}.", currentFilename));
                 }
             }
         }
